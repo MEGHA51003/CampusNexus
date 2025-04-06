@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: url('faculty.jpg') no-repeat center center;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 20px;
+            color: black;
+             }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        h1 {
+            font-size: 1.8em;
+            color: black; /* Changed to black */
+            text-align: center;
+        }
+        .role-select {
+            margin-bottom: 20px;
+            color: black;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        .section {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .section.active {
+            display: block;
+        }
+        .options {
+            margin-top: 20px;
+        }
+        .options button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .options button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #777;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            color:black;
+        }
+        #certificate-list {
+            margin-top: 20px;
+        }
+        #certificate-list div {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        #certificate-list h3 {
+            font-size: 1.2em;
+        }
+        .welcome-message {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .sidebar-image {
+            background-image: url('.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            width: 40%;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Faculty Dashboard</h1>
+    <div class="welcome-message">
+        Hello, <span id="username">User</span>! Welcome to the Faculty Dashboard.
+    </div>
+</header>
+
+<div class="role-select">
+    <label for="role">Select Role:</label>
+    <select id="role" onchange="displayRoleOptions()">
+        <option value="">Select Role</option>
+        <option value="principal">Principal</option>
+        <option value="hod">HOD</option>
+        <option value="dean">Dean</option>
+        <option value="staff-advisor">Staff Advisor</option>
+        <option value="other-faculty">Other Faculty</option>
+    </select>
+</div>
+
+<!-- Sections for each role -->
+<div id="principal-section" class="section">
+    <h2>Principal Dashboard</h2>
+    <div class="options">
+        <button onclick="viewAttendance()">View Attendance</button>
+        <button onclick="viewMarks()">View Marks</button>
+        <button onclick="viewCertificates()">View Certificates</button>
+        <button onclick="chat()">Chat</button>
+    </div>
+</div>
+
+<div id="hod-section" class="section">
+    <h2>HOD Dashboard</h2>
+    <div class="options">
+        <button onclick="viewAttendance()">View Attendance</button>
+        <button onclick="viewMarks()">View Marks</button>
+        <button onclick="viewCertificates()">View Certificates</button>
+        <button onclick="chat()">Chat</button>
+    </div>
+</div>
+
+<div id="dean-section" class="section">
+    <h2>Dean Dashboard</h2>
+    <div class="options">
+        <button onclick="viewAttendance()">View Attendance</button>
+        <button onclick="viewMarks()">View Marks</button>
+        <button onclick="viewCertificates()">View Certificates</button>
+        <button onclick="chat()">Chat</button>
+    </div>
+</div>
+
+<div id="staff-advisor-section" class="section">
+    <h2>Staff Advisor Dashboard</h2>
+    <div class="options">
+        <button onclick="viewAttendance()">View Attendance</button>
+        <button onclick="viewMarks()">View Marks</button>
+        <button onclick="verifyActivity()">Verify Activity Certificates</button>
+        <button onclick="chat()">Chat</button>
+        
+   </div>
+
+    
+    <div id="certificate-list"></div>
+</div>
+
+<div id="other-faculty-section" class="section">
+    <h2>Other Faculty Dashboard</h2>
+    <div class="options">
+        <button onclick="uploadAttendance()">Upload Attendance (By Subject)</button>
+        <button onclick="viewAttendance()">View Attendance</button>
+        <button onclick="uploadMarks()">Upload Marks (By Subject)</button>
+        <button onclick="chat()">Chat</button> 
+    </div>
+
+    
+    <div id="attendance-list"></div>
+</div>
+
+<!-- Image Section -->
+<div class="sidebar-image"></div>
+
+<footer>
+    <p>&copy; 2025 University System. All rights reserved.</p>
+</footer>
+
+<script>
+    // Set username from localStorage (assuming the user logged in and their username was stored)
+    document.getElementById('username').textContent = localStorage.getItem('username') || 'User';
+
+    function displayRoleOptions() {
+        const selectedRole = document.getElementById('role').value;
+        const sections = document.querySelectorAll('.section');
+        
+        // Hide all sections
+        sections.forEach(section => section.classList.remove('active'));
+        
+        // Show selected role section
+        if (selectedRole) {
+            document.getElementById(`${selectedRole}-section`).classList.add('active');
+        }
+    }
+
+    function viewAttendance() {
+        alert("Viewing Attendance...");
+        window.location.href = 'attendance-view.html';
+    }
+
+    function uploadMarks() {
+    alert("Redirecting to the mark uploading page...");
+    window.location.href = 'mark-upload.html'; // Redirect to mark uploading page
+}
+
+
+    function viewMarks() {
+        alert("Viewing Marks...");
+        window.location.href = 'view-marks.html';
+    }
+
+    function viewCertificates() {
+        alert("Viewing Certificates...");
+        window.location.href = 'view-certificates.html'
+    }
+
+    function verifyActivity() {
+        alert("Verifying Activity Certificates...");
+         window.location.href = 'verify-activity.html';
+        // Add logic to verify activity certificates as Staff Advisor
+    }
+
+    
+
+    function uploadAttendance() {
+        window.location.href = 'mark-attendance.html'; // Redirect to mark-attendance.html
+    }
+
+    function chat() {
+        alert("Chat with Students...");
+        window.location.href = 'faculty-chat.html';
+        
+    }
+
+    // Handle form submission to mark attendance based on both roll number and register number
+    document.getElementById('attendance-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const rollNumber = document.getElementById('rollNumber').value;
+        const registerNumber = document.getElementById('registerNumber').value;
+
+        if (!rollNumber || !registerNumber) {
+            alert("Please enter both the roll number and register number.");
+            return;
+        }
+
+        // Save attendance (dummy example)
+        const attendanceList = document.getElementById('attendance-list');
+        attendanceList.innerHTML += `<p>Attendance marked for Roll Number: ${rollNumber}, Register Number: ${registerNumber}</p>`;
+
+        // You can add more functionality to save it to your backend/server here
+    });
+
+    // Handle form submission to view certificates
+    document.getElementById('view-certificate-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const studentId = document.getElementById('studentId').value;
+
+        if (!studentId) {
+            alert("Please enter the student's register number.");
+            return;
+        }
+
+        // Fetch certificates using the studentId (register number)
+        fetch(`/view-certificates?studentId=${studentId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No certificates found.");
+                }
+                return response.json();
+            })
+            .then(certificates => {
+                const certificateList = document.getElementById('certificate-list');
+                certificateList.innerHTML = ""; // Clear the list
+
+                certificates.forEach(certificate => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<h3>${certificate.title}</h3><p>Points: ${certificate.points}</p>`;
+                    certificateList.appendChild(div);
+                });
+            })
+            .catch(error => alert(error.message));
+    });
+
+    document.getElementById('mark-upload-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const studentId = document.getElementById('studentId').value;
+        const subject = document.getElementById('subject').value;
+        const marks = document.getElementById('marks').value;
+
+        if (!studentId || !subject || !marks) {
+            alert("Please fill all the fields.");
+            return;
+        }
+
+        // You can add the backend logic here for uploading marks
+        alert(`Marks uploaded for Student ID: ${studentId}, Subject: ${subject}, Marks: ${marks}`);
+    });
+</script>
+
+</body>
+</html>

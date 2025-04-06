@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Marks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('marks-view.jpg') no-repeat center center;
+            background-size: cover;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .marks-data {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .marks-data h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>View Marks</h1>
+
+<div class="container">
+    <input type="text" id="reg_no" placeholder="Enter Register Number to View Marks" required>
+    <button onclick="viewMarks()">View Marks</button>
+
+    <div id="marks-output"></div>
+</div>
+
+<script>
+    function viewMarks() {
+        const reg_no = document.getElementById('reg_no').value;
+
+        if (!reg_no) {
+            alert('Please enter a Register Number.');
+            return;
+        }
+
+        // Fetch marks data from the server for the register number
+        fetch(`http://localhost:3053/view-marks/${reg_no}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Marks not found or server error');
+                }
+                return response.json();
+            })
+            .then(datas => {
+                const outputDiv = document.getElementById('marks-output');
+                outputDiv.innerHTML = '';
+
+                if (!datas && datas.length() == 0) {
+                    outputDiv.innerHTML = '<p>No marks found for the provided Register Number.</p>';
+                    return;
+                }
+
+                datas.forEach(data => {
+
+                // Display marks data
+                    outputDiv.innerHTML += `
+                        <div class="marks-data">
+                            <h3>Semester ${data.semester}</h3>
+                            <p><strong>Subject:</strong> ${data.subject || 'N/A'}</p>
+                            <p><strong>Internal 1:</strong> ${data.internal1 || 'N/A'}</p>
+                            <p><strong>Internal 2:</strong> ${data.internal2 || 'N/A'}</p>
+                            <p><strong>Consolidated Internal:</strong> ${data.consolidatedInternal || 'N/A'}</p>
+                            <p><strong>Grade:</strong> ${data.grade || 'N/A'}</p>
+                            <p><strong>Credits:</strong> ${data.credits || 'N/A'}</p>
+                        </div>
+                    `;
+                    });
+            })
+            .catch(err => {
+                console.error("Error fetching marks:", err);
+                alert("Error fetching marks. Please try again later.");
+            });
+    }
+</script>
+
+</body>
+</html>

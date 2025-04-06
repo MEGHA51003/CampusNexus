@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: url('campusnexus.jpg') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.wrapper {
+    display: flex;
+    max-width: 1000px;
+    width: 150%;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    justify-content: space-between;
+    margin-left: 50px; /* Adjust this to move the entire container to the right */
+}
+
+.container {
+    flex: 1;
+    max-width: 450px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h2 {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form label {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+form input,
+form select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+}
+
+form input:focus,
+form select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+form button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+.container:nth-child(1) {
+    background-color: #f0f8ff;
+    border-right: 1px solid #ddd;
+    justify-content: flex-start;
+    margin-left: 150px; /* Added margin-left to move the register form further right */
+    padding-left: 10px;
+}
+
+.container:nth-child(2) {
+    background-color: #f9f9f9;
+    justify-content: flex-end;
+    margin-right: 20px;
+    margin-left: 30px;
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+        border-radius: 0;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}

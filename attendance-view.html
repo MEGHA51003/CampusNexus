@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('attendance-bg.jpg') no-repeat center center;
+            background-size: cover;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #attendance-summary {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>View Attendance</h2>
+
+    <form id="attendance-view-form">
+        <div class="form-group">
+            <label for="subjectName">Subject Name:</label>
+            <input type="text" id="subjectName" name="subjectName" placeholder="Enter Subject Name" required>
+        </div>
+        <div class="form-group">
+            <label for="semester">Semester:</label>
+            <input type="text" id="semester" name="semester" placeholder="Enter Semester Name" required>
+        </div>
+        <div class="form-group">
+            <label for="batch">Batch Name:</label>
+            <input type="text" id="batch" name="batch" placeholder="Enter Batch Name" required>
+        </div>
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+            <label for="section">Class:</label>
+            <input type="text" id="section" name="section" min="1" max="8" placeholder="Enter Class" required>
+        </div>
+        <div class="form-group">
+            <button type="button" id="download-report">Download Attendance</button>
+        </div>
+    </form>
+
+    <!-- Attendance Summary Section -->
+    <table id="attendance-summary">
+        <thead>
+            <tr>
+                <th>Subject Name</th>
+                <th>Date</th>
+                <th>Hour Number</th>
+                <th>Student Roll No</th>
+                <th>Student Register No</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Attendance rows will be appended here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    document.getElementById('download-report').addEventListener('click', function() {
+        const subjectName = document.getElementById('subjectName').value;
+        const section = document.getElementById('section').value;
+        const semester = document.getElementById('semester').value;
+        const batch = document.getElementById('batch').value;
+        const date = document.getElementById('date').value;
+
+        // Trigger backend request to download report as Excel
+        fetch('http://localhost:3053/download-attendance-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subjectName, section, semester, batch, date })
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            // Create a link to download the file
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'attendance_report.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => console.error('Error downloading report:', error));
+    });
+</script>
+
+</body>
+</html>

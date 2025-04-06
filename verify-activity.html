@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty - Verify Activity Certificates</title>
+    <style>
+        /* Add some styles similar to your previous design */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            margin: 10px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 90%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .verify-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .verify-btn:hover {
+            background-color: #45a049;
+        }
+        #total-points {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Faculty - Verify Activity Certificates</h1>
+        <form id="fetch-form" onsubmit="event.preventDefault(); fetchCertificates();">
+            <label for="student-regd-no">Enter Student Registration Number:</label>
+            <input type="text" id="student-regd-no" name="student-regd-no" placeholder="Student Registration No." required>
+            <br>
+            <button type="submit">Fetch Certificates</button>
+        </form>
+
+        <div id="certificate-table">
+            <!-- Fetched certificates will be displayed here -->
+        </div>
+
+        <div id="total-points">
+            <!-- Total points will be displayed here -->
+        </div>
+
+        <a href="/faculty">Back to Dashboard</a>
+    </div>
+
+    <script>
+        function fetchCertificates() {
+            const regdNo = document.getElementById('student-regd-no').value;
+
+            // Fetch certificates from server
+            fetch(`http://localhost:3053/view-student-certificates/${regdNo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.certificates && data.certificates.length > 0) {
+                        let totalPoints = data.totalPoints;
+                        let table = `<table>
+                            <thead>
+                                <tr>
+                                    <th>Activity Type</th>
+                                    <th>Certificate</th>
+                                    <th>Points</th>
+                                    <th>CertificateDate</th>
+                                    <th>CourseDuration</th>
+                                    <th>Verify</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                        data.certificates.forEach(cert => {
+                            // Convert certificateDate to dd/mm/yyyy format
+                            let certDate = new Date(cert.certificateDate);
+                            let formattedDate = certDate.getDate().toString().padStart(2, '0') + '/' + 
+                                (certDate.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                certDate.getFullYear();
+                            let totalPoint = parseInt(cert.correspondingPoints) + parseInt(cert.prizeMark);
+                            table += `<tr>
+                                <td>${cert.certificateName}</td>
+                                <td><a href="/uploads/${cert.certificateFile}" target="_blank">View Certificate</a></td>
+                                <td>${totalPoint}</td>
+                                <td>${formattedDate}</td>
+                                <td>${cert.courseDuration}</td>
+                                <td>
+                                    <button class="verify-btn" onclick="verifyCertificate('${cert._id}')"> ${cert.verified ? 'Undo Verification' : 'Verify'} </button>
+                                </td>
+                            </tr>`;
+                            totalPoint = 0;
+                        });
+
+                        table += `</tbody></table>`;
+                        document.getElementById('certificate-table').innerHTML = table;
+                        document.getElementById('total-points').innerText = `Total Activity Points: ${totalPoints}`;
+                    } else {
+                        document.getElementById('certificate-table').innerHTML = '<p>No certificates found for this student.</p>';
+                        document.getElementById('total-points').innerText = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching certificates:', error);
+                    document.getElementById('certificate-table').innerHTML = '<p>Failed to fetch certificates. Please try again.</p>';
+                });
+        }
+
+        function verifyCertificate(certId) {
+            fetch(`/faculty/verify-certificate?id=${certId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Certificate verified successfully!');
+                        fetchCertificates();  // Refresh the certificate list
+                    } else {
+                        alert('Failed to verify certificate.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying certificate:', error);
+                    alert('An error occurred while verifying the certificate.');
+                });
+        }
+    </script>
+</body>
+</html>
